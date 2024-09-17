@@ -1,8 +1,9 @@
 import { httpClient } from "util/Api";
 
 export const getPosts = () => {
+  console.log("here");
   return httpClient
-    .get(`posts`)
+    .get("posts")
     .then((res) => {
       if (res.status === 200) {
         return res.data;

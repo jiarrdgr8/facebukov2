@@ -7,7 +7,7 @@ import AppContainer from "containers/App";
 import { useAuth } from "services/auth";
 import { usePermissions } from "services/accounts/permissionsProvider";
 import { useSubscriptionLimits } from "services/accounts/limitsProvider";
-import { useGetUser } from "services/posts/queries";
+// import { useGetUser } from "services/posts/queries";
 import CircularProgress from "components/CircularProgress";
 
 const RouteGuardInternal = ({ children, auth }) => {
@@ -18,44 +18,44 @@ const RouteGuardInternal = ({ children, auth }) => {
   const { changeCurrentView } = usePermissions();
   const { changeLimitsCurrentView } = useSubscriptionLimits();
 
-  const [isOnSetup, setIsOnSetup] = useState();
+  // const [isOnSetup, setIsOnSetup] = useState();
 
   const { isLogin, tokenExpiry } = auth;
 
-  const { data: userData, isLoading: userLoading } = useGetUser(
-    auth?.user?._id
-  );
+  // const { data: userData, isLoading: userLoading } = useGetUser(
+  //   auth?.user?._id
+  // );
 
   // to check wether the user has not completed the set up process yet
-  const onSetup = () => {
-    if (userData) {
-      if (userData.ownedAccounts) {
-        if (userData.ownedAccounts.length === 0) {
-          //if no owned accounts but has accounts, user must be invited
-          if (userData.accounts && userData.accounts.length > 0) {
-            return false;
-          } else {
-            return true;
-          }
-        } else if (userData.ownedAccounts.length === 1) {
-          if (userData.ownedAccounts?.[0]?.subscription) {
-            return false;
-          } else {
-            return true;
-          }
-        } else {
-          //for multiple accounts in which there are still accounts that were not completely set up by the user
-          return false;
-        }
-      } else {
-        return true;
-      }
-    }
-  };
+  // const onSetup = () => {
+  //   if (userData) {
+  //     if (userData.ownedAccounts) {
+  //       if (userData.ownedAccounts.length === 0) {
+  //         //if no owned accounts but has accounts, user must be invited
+  //         if (userData.accounts && userData.accounts.length > 0) {
+  //           return false;
+  //         } else {
+  //           return true;
+  //         }
+  //       } else if (userData.ownedAccounts.length === 1) {
+  //         if (userData.ownedAccounts?.[0]?.subscription) {
+  //           return false;
+  //         } else {
+  //           return true;
+  //         }
+  //       } else {
+  //         //for multiple accounts in which there are still accounts that were not completely set up by the user
+  //         return false;
+  //       }
+  //     } else {
+  //       return true;
+  //     }
+  //   }
+  // };
 
-  useEffect(() => {
-    setIsOnSetup(onSetup());
-  }, [userData]);
+  // useEffect(() => {
+  //   setIsOnSetup(onSetup());
+  // }, [userData]);
 
   useEffect(() => {
     // Conditions to check for login status and token expiry
@@ -65,9 +65,10 @@ const RouteGuardInternal = ({ children, auth }) => {
       userSignout().then((res) => {
         navigate("/login");
       });
-    } else if (isOnSetup) {
-      navigate("/setup");
     }
+    // else if (isOnSetup) {
+    //   navigate("/setup");
+    // }
     //eslint-disable-next-line
   }, [isLogin, location, isOnSetup]);
 

@@ -1,6 +1,7 @@
 const Post = require("../models/post");
 
 module.exports.index = async () => {
+  // console.log("here");
   return Post.find()
     .populate("user")
     .then((result: any) => {

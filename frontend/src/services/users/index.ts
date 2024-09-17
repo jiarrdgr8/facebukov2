@@ -1,8 +1,8 @@
 import { httpClient } from "util/Api";
 
-export const createPost = (values: unknown) => {
+export const getUser = (id: string) => {
   return httpClient
-    .post("posts", values)
+    .get(`users/${id}`)
     .then((res) => {
       if (res.status === 200) {
         return res.data;
@@ -15,9 +15,9 @@ export const createPost = (values: unknown) => {
     });
 };
 
-export const updatePost = (id: string, values: unknown) => {
+export const updateUser = (id: string, values: unknown) => {
   return httpClient
-    .put(`posts/${id}`, values)
+    .put(`users/${id}`, values)
     .then((res) => {
       if (res.status === 200) {
         return res.data;

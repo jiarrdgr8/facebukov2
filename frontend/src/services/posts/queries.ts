@@ -2,7 +2,13 @@ import * as service from "./index.js";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useGetPosts = () => {
-  return useQuery({ queryKey: ["posts"], queryFn: () => service.getPosts() });
+  return useQuery({
+    queryKey: ["posts"],
+    queryFn: () => {
+      console.log("here");
+      return service.getPosts();
+    },
+  });
 };
 
 export const useCreatePost = (cbFunction?: (res: unknown) => void) => {

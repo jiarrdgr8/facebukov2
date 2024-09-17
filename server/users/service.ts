@@ -7,13 +7,11 @@ module.exports.index = async () => {
 };
 
 module.exports.get = async (id: string) => {
-  return (
-    User.findOne({ _id: id })
-      // .populate("motorhomes")
-      .then((result: any) => {
-        return result;
-      })
-  );
+  return User.findOne({ _id: id })
+    .populate("friends")
+    .then((result: any) => {
+      return result;
+    });
 };
 
 module.exports.create = async (values: any) => {
