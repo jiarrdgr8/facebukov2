@@ -15,6 +15,7 @@ const HomePage = () => {
 
   const { data: user, isLoading: userLoading } = useGetUser(_id);
   const { data: posts, isLoading: postsLoading } = useGetPosts();
+  console.log("load");
 
   if (userLoading || postsLoading) return null;
   return (
