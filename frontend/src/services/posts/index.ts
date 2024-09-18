@@ -1,7 +1,6 @@
 import { httpClient } from "util/Api";
 
 export const getPosts = () => {
-  console.log("here");
   return httpClient
     .get("posts")
     .then((res) => {

@@ -4,10 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 export const useGetUser = (id: string) => {
   return useQuery({
     queryKey: ["users", id],
-    queryFn: () => {
-      console.log("kani2");
-      return service.getUser(id);
-    },
+    queryFn: () => service.getUser(id),
   });
 };
 

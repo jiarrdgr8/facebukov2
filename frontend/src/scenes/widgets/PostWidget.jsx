@@ -8,47 +8,59 @@ import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useUpdatePost } from "services/posts/queries";
+import { useGetUser } from "services/users/queries";
 import { setPost } from "state";
 
 const PostWidget = ({ post }) => {
   const { _id, comments, content, date_created, image, likes, user } = post;
+  const loggedInUserId = useSelector((state) => state.user._id);
 
   const [isComments, setIsComments] = useState(false);
-  const dispatch = useDispatch();
-  const token = useSelector((state) => state.token);
-  const loggedInUserId = useSelector((state) => state.user._id);
-  // const isLiked = Boolean(likes[loggedInUserId]);
-  const isLiked = true;
-  const likeCount = Object.keys(likes).length;
+  const [isFriend, setIsFriend] = useState();
+  const [isLiked, setIsLiked] = useState();
 
-  // const { _id, comments, content, date_created, image, likes, user } = post;
+  const { data: loggedUserDetails, isLoading } = useGetUser(loggedInUserId);
 
   const { palette } = useTheme();
   const main = palette.neutral.main;
   const primary = palette.primary.main;
 
-  // const patchLike = async () => {
-  //   const response = await fetch(`http://localhost:3001/posts/${postId}/like`, {
-  //     method: "PATCH",
-  //     headers: {
-  //       Authorization: `Bearer ${token}`,
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ userId: loggedInUserId }),
-  //   });
-  //   const updatedPost = await response.json();
-  //   dispatch(setPost({ post: updatedPost }));
-  // };
+  const { mutate: updatePost } = useUpdatePost();
+
+  useEffect(() => {
+    const friendIds = loggedUserDetails?.friends?.map((item) => item._id) || [];
+    setIsFriend(friendIds.includes(user._id));
+
+    // const likerIds = loggedUserDetails?.likes?.map((item) => item._id) || [];
+    setIsLiked(likes?.includes(loggedUserDetails._id));
+  }, [loggedUserDetails, post]);
+
+  const handleLikeClick = () => {
+    console.log(isLiked);
+    const likerIds = loggedUserDetails?.likes?.map((item) => item._id) || [];
+
+    if (isLiked) {
+      const newLikes = likerIds?.filter((item) => item !== loggedInUserId);
+      updatePost({ id: _id, values: { likes: newLikes } });
+    } else {
+      const newLikes = [...likerIds, loggedInUserId];
+      updatePost({ id: _id, values: { likes: newLikes } });
+    }
+  };
+
+  if (isLoading) return null;
 
   return (
     <WidgetWrapper m="2rem 0">
       <Friend
+        isFriend={isFriend}
         friendId={user?._id}
         name={user?.firstName}
         subtitle={user?.location}
-        userPicturePath={user?.avatar}
+        avatar={user?.avatar}
       />
       <Typography color={main} sx={{ mt: "1rem" }}>
         {content}
@@ -66,14 +78,14 @@ const PostWidget = ({ post }) => {
         <FlexBetween gap="1rem">
           <FlexBetween gap="0.3rem">
             {/* <IconButton onClick={patchLike}> */}
-            <IconButton>
+            <IconButton onClick={handleLikeClick}>
               {isLiked ? (
                 <FavoriteOutlined sx={{ color: primary }} />
               ) : (
                 <FavoriteBorderOutlined />
               )}
             </IconButton>
-            <Typography>{likeCount}</Typography>
+            <Typography>{likes.length}</Typography>
           </FlexBetween>
 
           <FlexBetween gap="0.3rem">
@@ -88,10 +100,10 @@ const PostWidget = ({ post }) => {
           <ShareOutlined />
         </IconButton>
       </FlexBetween>
-      {/* {isComments && (
+      {isComments && (
         <Box mt="0.5rem">
           {comments.map((comment, i) => (
-            <Box key={`${name}-${i}`}>
+            <Box key={`${_id}-${i}`}>
               <Divider />
               <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
                 {comment}
@@ -100,7 +112,7 @@ const PostWidget = ({ post }) => {
           ))}
           <Divider />
         </Box>
-      )}  */}
+      )}
     </WidgetWrapper>
   );
 };

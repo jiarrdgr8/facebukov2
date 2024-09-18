@@ -24,8 +24,12 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "state";
+import { useCreatePost } from "services/posts/queries";
 
-const MyPostWidget = ({ picturePath }) => {
+import config from "config";
+import { uploadImage } from "services/media";
+
+const MyPostWidget = ({ avatar }) => {
   const dispatch = useDispatch();
   const [isImage, setIsImage] = useState(false);
   const [image, setImage] = useState(null);
@@ -37,30 +41,52 @@ const MyPostWidget = ({ picturePath }) => {
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
 
-  const handlePost = async () => {
-    const formData = new FormData();
-    formData.append("userId", _id);
-    formData.append("description", post);
-    if (image) {
-      formData.append("picture", image);
-      formData.append("picturePath", image.name);
-    }
-
-    const response = await fetch(`http://localhost:3001/posts`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-    const posts = await response.json();
-    dispatch(setPosts({ posts }));
+  const { mutate: createPost } = useCreatePost(() => {
     setImage(null);
     setPost("");
+  });
+
+  const handleUpload = async (file) => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("fileUpload", file); // Ensure this key matches the backend
+
+      try {
+        const response = await fetch(
+          "http://localhost:3001/api/v1/media/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await response.json();
+
+        if (response?.ok) {
+          setImage(data.photoUrl); // Display the uploaded image as a URL
+        } else {
+          console.error(data.message); // Handle error message
+        }
+      } catch (error) {
+        console.error("Error uploading the image", error);
+      }
+    }
+  };
+
+  console.log(image);
+
+  const handlePost = async () => {
+    createPost({
+      content: post,
+      image: image,
+      user: _id,
+    });
   };
 
   return (
     <WidgetWrapper>
       <FlexBetween gap="1.5rem">
-        <UserImage image={picturePath} />
+        <UserImage image={avatar} />
         <InputBase
           placeholder="What's on your mind..."
           onChange={(e) => setPost(e.target.value)}
@@ -83,7 +109,7 @@ const MyPostWidget = ({ picturePath }) => {
           <Dropzone
             acceptedFiles=".jpg,.jpeg,.png"
             multiple={false}
-            onDrop={(acceptedFiles) => setImage(acceptedFiles[0])}
+            onDrop={(acceptedFiles) => handleUpload(acceptedFiles[0])} // Ensure the first file is passed
           >
             {({ getRootProps, getInputProps }) => (
               <FlexBetween>
@@ -99,8 +125,19 @@ const MyPostWidget = ({ picturePath }) => {
                     <p>Add Image Here</p>
                   ) : (
                     <FlexBetween>
-                      <Typography>{image.name}</Typography>
-                      <EditOutlined />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          width: "90%",
+                        }}
+                      >
+                        <img src={image} alt="upload" width={"100px"} />
+                      </div>
+                      {/* <Typography>{image}</Typography> */}
+                      <div style={{ width: "10%" }}>
+                        <EditOutlined />
+                      </div>
                     </FlexBetween>
                   )}
                 </Box>

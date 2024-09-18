@@ -4,10 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 export const useGetPosts = () => {
   return useQuery({
     queryKey: ["posts"],
-    queryFn: () => {
-      console.log("here");
-      return service.getPosts();
-    },
+    queryFn: () => service.getPosts(),
   });
 };
 

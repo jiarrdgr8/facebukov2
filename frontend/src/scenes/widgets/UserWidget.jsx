@@ -8,38 +8,19 @@ import { Box, Typography, Divider, useTheme } from "@mui/material";
 import UserImage from "components/UserImage";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
-import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGetUser } from "services/users/queries";
 
-const UserWidget = ({ userId, picturePath }) => {
-  const [user, setUser] = useState(null);
+const UserWidget = ({ userId, avatar }) => {
   const { palette } = useTheme();
   const navigate = useNavigate();
-  const token = useSelector((state) => state.token);
   const dark = palette.neutral.dark;
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
 
-  const getUser = async () => {
-    const response = await fetch(
-      `http://localhost:3001/api/v1/users/${userId}`,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const data = await response.json();
-    setUser(data);
-  };
+  const { data: user, isLoading } = useGetUser(userId);
 
-  useEffect(() => {
-    getUser();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!user) {
-    return null;
-  }
+  if (isLoading) return null;
 
   const {
     firstName,
@@ -60,7 +41,7 @@ const UserWidget = ({ userId, picturePath }) => {
         onClick={() => navigate(`/profile/${userId}`)}
       >
         <FlexBetween gap="1rem">
-          <UserImage image={picturePath} />
+          <UserImage image={avatar} />
           <Box>
             <Typography
               variant="h4"
