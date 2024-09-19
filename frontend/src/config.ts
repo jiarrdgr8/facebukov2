@@ -1,4 +1,4 @@
-const ENV = "dev";
+const ENV = "prod";
 
 const common = {
   FOOTER_TEXT: "©2024 Facebuko. All rights reserved.",
@@ -9,7 +9,7 @@ const dev = {
 };
 
 const prod = {
-  API_URL: "http://localhost:3001/api/v1/",
+  API_URL: "https://facebukov2.onrender.com/api/v1/",
 };
 
 const config =
