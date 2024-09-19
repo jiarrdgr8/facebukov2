@@ -1,6 +1,7 @@
+export {};
 const jwt = require("jsonwebtoken");
 
-module.exports.verifyToken = async (req, res, next) => {
+module.exports.verifyToken = async (req: any, res: any, next: Function) => {
   try {
     let token = req.header("Authorization");
 
@@ -14,7 +15,7 @@ module.exports.verifyToken = async (req, res, next) => {
     const verified = jwt.verify(token, process.env.JWT_KEY);
     req.user = verified;
     next();
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 };

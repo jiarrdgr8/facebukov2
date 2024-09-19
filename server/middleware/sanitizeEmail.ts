@@ -1,4 +1,4 @@
-module.exports = (req, res, next) => {
+module.exports = (req: any, res: any, next: Function) => {
   if (req.body.email) {
     req.body.email = req.body.email.toLowerCase();
   }
