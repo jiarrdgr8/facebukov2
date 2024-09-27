@@ -73,7 +73,7 @@ const MyPostWidget = ({ avatar }) => {
     }
   };
 
-  console.log(image);
+  // console.log(image);
 
   const handlePost = async () => {
     createPost({
@@ -109,7 +109,7 @@ const MyPostWidget = ({ avatar }) => {
           <Dropzone
             acceptedFiles=".jpg,.jpeg,.png"
             multiple={false}
-            onDrop={(acceptedFiles) => handleUpload(acceptedFiles[0])} // Ensure the first file is passed
+            onDrop={(acceptedFiles) => handleUpload(acceptedFiles[0])}
           >
             {({ getRootProps, getInputProps }) => (
               <FlexBetween>

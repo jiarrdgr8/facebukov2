@@ -14,6 +14,8 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "state";
 import Dropzone from "react-dropzone";
 import axios from "axios";
+import { EditOutlined } from "@mui/icons-material";
+import FlexBetween from "components/FlexBetween";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
@@ -22,7 +24,6 @@ const registerSchema = yup.object().shape({
   password: yup.string().required("required"),
   location: yup.string().required("required"),
   occupation: yup.string().required("required"),
-  picture: yup.mixed().required("required"),
 });
 
 const loginSchema = yup.object().shape({
@@ -53,29 +54,21 @@ const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
+  const [image, setImage] = useState(null);
 
   const register = async (values, onSubmitProps) => {
     try {
-      // const formData = new FormData();
-      // for (let value in values) {
-      //   formData.append(value, values[value]);
-      // }
-      // if (values.picture) {
-      //   formData.append("picturePath", values.picture.name);
-      // }
-      // for (let pair of formData.entries()) {
-      //   console.log(pair[0] + ": " + pair[1]);
-      // }
-
-      console.log(values);
+      // Add picture to formData if available
+      if (image) {
+        values.avatar = image;
+      }
 
       const savedUserResponse = await axios.post(
         "http://localhost:3001/api/v1/auth/register",
         values,
         {
           headers: {
-            "Content-Type": "application/json",
-            // Authorization: `Bearer ${localStorage.getItem('token')}`
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -102,7 +95,6 @@ const Form = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${localStorage.getItem('token')}`
           },
         }
       );
@@ -128,8 +120,35 @@ const Form = () => {
     }
   };
 
+  const handleUpload = async (file) => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("fileUpload", file); // Ensure this key matches the backend
+
+      try {
+        const response = await fetch(
+          "http://localhost:3001/api/v1/media/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await response.json();
+
+        if (response?.ok) {
+          setImage(data.photoUrl); // Display the uploaded image as a URL
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error("Error uploading the image", error);
+      }
+    }
+  };
+
   const handleFormSubmit = async (values, onSubmitProps) => {
-    // console.log("Submitting Form:", values);
+    console.log("first");
     if (isLogin) await login(values, onSubmitProps);
     if (isRegister) await register(values, onSubmitProps);
   };
@@ -147,7 +166,6 @@ const Form = () => {
         handleBlur,
         handleChange,
         handleSubmit,
-        setFieldValue,
         resetForm,
       }) => (
         <form onSubmit={handleSubmit}>
@@ -167,9 +185,7 @@ const Form = () => {
                   onChange={handleChange}
                   value={values.firstName}
                   name="firstName"
-                  error={
-                    Boolean(touched.firstName) && Boolean(errors.firstName)
-                  }
+                  error={Boolean(touched.firstName && errors.firstName)}
                   helperText={touched.firstName && errors.firstName}
                   sx={{ gridColumn: "span 2" }}
                 />
@@ -179,7 +195,7 @@ const Form = () => {
                   onChange={handleChange}
                   value={values.lastName}
                   name="lastName"
-                  error={Boolean(touched.lastName) && Boolean(errors.lastName)}
+                  error={Boolean(touched.lastName && errors.lastName)}
                   helperText={touched.lastName && errors.lastName}
                   sx={{ gridColumn: "span 2" }}
                 />
@@ -189,7 +205,7 @@ const Form = () => {
                   onChange={handleChange}
                   value={values.location}
                   name="location"
-                  error={Boolean(touched.location) && Boolean(errors.location)}
+                  error={Boolean(touched.location && errors.location)}
                   helperText={touched.location && errors.location}
                   sx={{ gridColumn: "span 4" }}
                 />
@@ -199,9 +215,7 @@ const Form = () => {
                   onChange={handleChange}
                   value={values.occupation}
                   name="occupation"
-                  error={
-                    Boolean(touched.occupation) && Boolean(errors.occupation)
-                  }
+                  error={Boolean(touched.occupation && errors.occupation)}
                   helperText={touched.occupation && errors.occupation}
                   sx={{ gridColumn: "span 4" }}
                 />
@@ -214,9 +228,7 @@ const Form = () => {
                   <Dropzone
                     acceptedFiles=".jpg,.jpeg,.png"
                     multiple={false}
-                    onDrop={(acceptedFiles) =>
-                      setFieldValue("picture", acceptedFiles[0])
-                    }
+                    onDrop={(acceptedFiles) => handleUpload(acceptedFiles[0])}
                   >
                     {({ getRootProps, getInputProps }) => (
                       <Box
@@ -226,10 +238,23 @@ const Form = () => {
                         sx={{ "&:hover": { cursor: "pointer" } }}
                       >
                         <input {...getInputProps()} />
-                        {!values.picture ? (
+                        {!image ? (
                           <p>Add Picture Here</p>
                         ) : (
-                          <Typography>{values.picture.name}</Typography>
+                          <FlexBetween>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                width: "90%",
+                              }}
+                            >
+                              <img src={image} alt="upload" width={"100px"} />
+                            </div>
+                            <div style={{ width: "10%" }}>
+                              <EditOutlined />
+                            </div>
+                          </FlexBetween>
                         )}
                       </Box>
                     )}
@@ -244,7 +269,7 @@ const Form = () => {
               onChange={handleChange}
               value={values.email}
               name="email"
-              error={Boolean(touched.email) && Boolean(errors.email)}
+              error={Boolean(touched.email && errors.email)}
               helperText={touched.email && errors.email}
               sx={{ gridColumn: "span 4" }}
             />
@@ -255,7 +280,7 @@ const Form = () => {
               onChange={handleChange}
               value={values.password}
               name="password"
-              error={Boolean(touched.password) && Boolean(errors.password)}
+              error={Boolean(touched.password && errors.password)}
               helperText={touched.password && errors.password}
               sx={{ gridColumn: "span 4" }}
             />
@@ -265,7 +290,6 @@ const Form = () => {
             <Button
               fullWidth
               type="submit"
-              // onClick={handleFormSubmit}
               sx={{
                 m: "2rem 0",
                 p: "1rem",
