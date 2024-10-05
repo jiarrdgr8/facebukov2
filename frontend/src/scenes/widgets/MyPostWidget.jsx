@@ -62,6 +62,8 @@ const MyPostWidget = ({ avatar }) => {
 
         const data = await response.json();
 
+        console.log(data);
+
         if (response?.ok) {
           setImage(data.photoUrl); // Display the uploaded image as a URL
         } else {

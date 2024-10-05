@@ -27,7 +27,12 @@ const AdvertWidget = () => {
         <Typography color={main}>
           GG Republic – Your Ultimate Dota 2 Hub
         </Typography>
-        <Typography color={medium}>ggrepublic.com</Typography>
+        <div
+          onClick={() => window.open("https://www.ggrepublic.com/", "_blank")}
+          style={{ cursor: "pointer" }}
+        >
+          <Typography color={medium}>ggrepublic.com</Typography>
+        </div>
       </FlexBetween>
       <Typography color={medium} m="0.5rem 0">
         Discover everything you need to know about Dota 2 in one place. From the
